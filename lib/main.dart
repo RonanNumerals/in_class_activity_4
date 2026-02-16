@@ -25,7 +25,7 @@ class CounterWidget extends StatefulWidget {
 class _CounterWidgetState extends State<CounterWidget> {
   //initial couter value
   int _counter = 0;
-  //String _inputText = '';
+  bool invalid = false;
   final List<int> _history = [];
 
   final _textController = TextEditingController();
@@ -57,14 +57,14 @@ class _CounterWidgetState extends State<CounterWidget> {
   void _undo() {
     setState(() {
       if (_history.isNotEmpty) {
-        _counter = _history.removeLast();
+        _history.removeLast();
+        _counter = _history.last;
       }
     });
   }
 
   void _saveInput() {
     setState(() {
-      //_inputText = _textController.text;
       _history.add(_counter);
     });
   }
@@ -73,14 +73,18 @@ class _CounterWidgetState extends State<CounterWidget> {
     int? value = int.tryParse(_textController.text);
     if (value != null) {
         setState(() {
+          invalid = false;
           _counter += value;
           if (_counter > 100) {
             _counter = 100;
           }
+          _saveInput();
         }
       );
     }else{
-      Text('Invalid input!');
+      setState(() {
+        invalid = true;
+      });
     }
   }
 
@@ -202,14 +206,18 @@ class _CounterWidgetState extends State<CounterWidget> {
           ElevatedButton(
             onPressed: () {
               _customUserInput();
-              _saveInput();
             },
             child: const Text('Enter'),
           ),
+          if (invalid == true)
+            Text(
+              'Invalid user input!',
+              style: TextStyle(color: Colors.red, fontSize: 16),
+            ),
           const SizedBox(height: 12),
           Container(
             color: Colors.grey[200],
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(3.0),
             child: Column(
               children: [
                 const Text('History:'),
