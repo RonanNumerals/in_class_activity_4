@@ -56,9 +56,12 @@ class _CounterWidgetState extends State<CounterWidget> {
 
   void _undo() {
     setState(() {
-      if (_history.isNotEmpty) {
+      if (_history.length > 1) {
         _history.removeLast();
         _counter = _history.last;
+      } else if (_history.length == 1) {
+        _history.removeLast();
+        _counter = 0;
       }
     });
   }
@@ -139,6 +142,11 @@ class _CounterWidgetState extends State<CounterWidget> {
                 _counter = value.toInt();
               });
             },
+            onChangeEnd: (double value) {
+              setState(() {
+                _history.add(_counter);
+              });
+            },
             activeColor: Colors.blue,
             inactiveColor: Colors.red,
           ),
@@ -169,7 +177,7 @@ class _CounterWidgetState extends State<CounterWidget> {
               ),
             ],
           ),
-          const SizedBox(width: 12),
+          const SizedBox(height: 12),
           Row (
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -190,7 +198,7 @@ class _CounterWidgetState extends State<CounterWidget> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
           SizedBox(
             width: 300,
             height: 50,
@@ -215,17 +223,35 @@ class _CounterWidgetState extends State<CounterWidget> {
               style: TextStyle(color: Colors.red, fontSize: 16),
             ),
           const SizedBox(height: 12),
-          Container(
-            color: Colors.grey[200],
-            padding: const EdgeInsets.all(3.0),
-            child: Column(
-              children: [
-                const Text('History:'),
-                for (var value in _history)
-                  Text(value.toString()),
-              ],
-            ), 
-          )
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                "History:",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _history.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 0.1),
+                  child: ListTile(
+                    title: Text(
+                      _history[index].toString(),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
         ],
       ),
     );
